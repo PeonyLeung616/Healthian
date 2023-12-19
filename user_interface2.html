@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Medical Records</title>
+  <style>
+    body {
+      background-color: #3498db;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .menu {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .menu a {
+      color: white;
+      text-decoration: none;
+      margin-right: 10px;
+    }
+
+    .content {
+      width: 600px;
+      margin: 0 auto;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    input[type="submit"] {
+      background-color: #2980b9;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+  </style>
+  
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+</head>
+<body>
+  <h1>Blue Medical Records</h1>
+  <div class="menu">
+    <li><a href="#" onclick="registerPatient()">Register a New Patient</a></li>
+    <li><a href="#" onclick="searchPatient()">Search Patient's Medical Record</a></li>
+    <li><a href="#" onclick="addMedicalRecord()">Add Medical Record</a></li>
+</div>
+
+<div class="content" id="content"></div>
+
+  <script>
+    var patients = [];
+
+    function registerPatient() {
+        document.getElementById('content').innerHTML = `
+        <h2>Register a New Patient</h2>
+        <form onsubmit="register(event)">
+          <label for="name">Name:</label>
+          <input type="text" id="name" required><br>
+          <label for="id">ID Number:</label>
+          <input type="text" id="id" required><br>
+          <label for="username">Username:</label>
+          <input type="text" id="username" required><br>
+          <label for="password">Password:</label>
+          <input type="password" id="password" required><br>
+          <input type="submit" value="Register">
+        </form>
+      `;
+    }
+
+    function register(event) {
+      event.preventDefault();
+
+      var name = document.getElementById("name").value;
+      var id = document.getElementById("id").value;
+      var username = document.getElementById("username").value;
+      var password = document.getElementById("password").value;
+
+      // Generate SHA-256 hash code based on the patient's data
+      var hash = sha256(name + id + username + password);
+
+      // Store patient's data and associated hash code securely
+      patients.push({
+        name: name,
+        id: id,
+        username: username,
+        password: password,
+        hash: hash,
+        medicalRecords: []
+      });
+
+      // Reset the form
+      event.target.reset();
+
+      alert("Patient registration successful.");
+    }
+
+    function searchPatient() {
+      var contentDiv = document.getElementById("content");
+      contentDiv.innerHTML = `
+        <h2>Search Patient's Medical Record</h2>
+        <form onsubmit="search(event)">
+          <label for="searchId">Patient ID:</label>
+          <input type="text" id="searchId" required><br>
+          <label for="verification">Verification Information:</label>
+          <input type="text" id="verification" required><br>
+          <input type="submit" value="Search">
+        </form>
+      `;
+    }
+
+    function search(event) {
+      event.preventDefault();
+
+      var searchId = document.getElementById("searchId").value;
+      var verification = document.getElementById("verification").value;
+
+      var patient = findPatientById(searchId);
+
+      if (patient) {
+        // Retrieve the stored SHA-256 hash code associated with the patient's data
+        var storedHash = patient.hash;
+
+        // Calculate the SHA-256 hash code of the provided information
+        var calculatedHash = sha256(searchId + verification);
+
+        // Compare the calculated hash code with the stored hash code
+        if (calculatedHash === storedHash) {
+          // Display patient's information and medical records
+          var contentDiv = document.getElementById("content");
+          contentDiv.innerHTML = `
+            <h2>Patient Information</h2>
+            <p>Name: ${patient.name}</p>
+            <p>ID: ${patient.id}</p>
+            <h2>Medical Records</h2>
+            ${patient.medicalRecords.length > 0 ? patient.medicalRecords.map(record => `<p>${record}</p>`).join('') : "No medical records found."}
+          `;
+        } else {
+          alert("Verification failed. Please provide correct information.");
+        }
+      } else {
+        alert("Patient not found. Please check the ID number.");
+      }
+    }
+
+    function addMedicalRecord() {
+      var contentDiv = document.getElementById("content");
+      contentDiv.innerHTML = `
+        <h2>Add Medical Record</h2>
+        <form onsubmit="addRecord(event)">
+          <label for="addId">Patient ID:</label>
+          <input type="text" id="addId" required><br>
+          <label for="verification">Verification Information:</label>
+          <input type="text" id="verification" required><br>
+          <label for="record">Medical Record:</label>
+          <textarea id="record" required></textarea><br>
+          <input type="submit" value="Add Record">
+        </form>
+      `;
+    }
+
+    function addRecord(event) {
+      event.preventDefault();
+
+      var addId = document.getElementById("addId").value;
+      var verification = document.getElementById("verification").value;
+      var record = document.getElementById("record").value;
+
+      var patient = findPatientById(addId);
+
+      if (patient) {
+        // Retrieve the stored SHA-256 hash code associated with the patient's data
+        var storedHash = patient.hash;
+
+        // Calculate the SHA-256 hash code of the provided information
+        var calculatedHash = sha256(addId + verification);
+
+        // Compare the calculated hash code with the stored hash code
+        if (calculatedHash === storedHash) {
+          // Add the new medical record to the patient's medicalRecords array
+          patient.medicalRecords.push(record);
+
+          // Reset the form
+          event.target.reset();
+
+          alert("Medical record added successfully.");
+        } else {
+          alert("Verification failed. Please provide correct information.");
+        }
+      } else {
+        alert("Patient not found. Please check the ID number.");
+      }
+    }
+
+    function findPatientById(id) {
+      return patients.find(patient => patient.id === id);
+    }
+  </script>
+</body>
+</html>
