@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blue Medical Records</title>
+  <style>
+    body {
+      background-color: #3498db;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .menu {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .menu a {
+      color: white;
+      text-decoration: none;
+      margin-right: 10px;
+    }
+
+    .content {
+      width: 600px;
+      margin: 0 auto;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    input[type="submit"] {
+      background-color: #2980b9;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Blue Medical Records</h1>
+
+  <div class="menu">
+    <a href="#" onclick="registerPatient()">New Patient</a>
+    <a href="#" onclick="searchPatient()">Find Medical Record</a>
+    <a href="#" onclick="addMedicalRecord()">Add Medical Record</a>
+  </div>
+
+  <div class="content" id="content"></div>
+
+  <script>
+    let patients = [];
+
+    function registerPatient() {
+      document.getElementById('content').innerHTML = `
+        <h2>Register New Patient</h2>
+        <form id="registerForm" onsubmit="register(event)">
+          <input type="text" placeholder="Name" id="name" required>
+          <input type="text" placeholder="ID Number" id="idNumber" required>
+          <input type="text" placeholder="Mobile Number" id="mobileNumber" required>
+          <input type="text" placeholder="Gender" id="gender" required>
+          <input type="number" placeholder="Age" id="age" required>
+          <input type="number" placeholder="Weight" id="weight" required>
+          <input type="number" placeholder="Height" id="height" required>
+          <input type="submit" value="Register">
+        </form>
+      `;
+    }
+
+    function register(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const idNumber = document.getElementById('idNumber').value;
+      const mobileNumber = document.getElementById('mobileNumber').value;
+      const gender = document.getElementById('gender').value;
+      const age = document.getElementById('age').value;
+      const weight = document.getElementById('weight').value;
+      const height = document.getElementById('height').value;
+
+      const patient = {
+        name,
+        idNumber,
+        mobileNumber,
+        gender,
+        age,
+        weight,
+        height,
+        medicalRecords: []
+      };
+
+      patients.push(patient);
+
+      // Simulating blockchain storage
+      console.log(JSON.stringify(patients));
+
+      document.getElementById('registerForm').reset();
+      alert('Patient registered successfully!');
+    }
+
+    function searchPatient() {
+      document.getElementById('content').innerHTML = `
+        <h2>Search Patient's Medical Record</h2>
+        <form id="searchForm" onsubmit="search(event)">
+          <input type="text" placeholder="ID Number" id="searchIdNumber" required>
+          <input type="text" placeholder="SHA256 Verification" id="verificationHash" required>
+          <input type="submit" value="Search">
+        </form>
+        <div id="searchResult" class="result"></div>
+      `;
+    }
+
+    function search(event) {
+      event.preventDefault();
+
+      const searchIdNumber = document.getElementById('searchIdNumber').value;
+      const verificationHash = document.getElementById('verificationHash').value;
+
+      // Simulating blockchain retrieval
+      const patient = patients.find(p => p.idNumber === searchIdNumber);
+      if (!patient) {
+        alert('Patient not found!');
+        return;
+      }
+
+      // Simulating verification using SHA256 hash
+      const verified = verifyData(searchIdNumber, patient, verificationHash);
+      if (!verified) {
+        alert('Verification failed!');
+        return;
+      }
+
+      const searchResult = document.getElementById('searchResult');
+      searchResult.innerHTML = `
+        <h3>Patient Information</h3>
+        <p><strong>Name:</strong> ${patient.name}</p>
+        <p><strong>ID Number:</strong> ${patient.idNumber}</p>
+        <p><strong>Mobile Number:</strong> ${patient.mobileNumber}</p>
+        <p><strong>Gender:</strong> ${patient.gender}</p>
+        <p><strong>Age:</strong> ${patient.age}</p>
+        <p><strong>Weight:</strong> ${patient.weight}</p>
+        <p><strong>Height:</strong> ${patient.height}</p>
+        <h3>Medical Records</h3>
+        ${patient.medicalRecords.length > 0 ? patient.medicalRecords.map(record => `
+          <p><strong>Date:</strong> ${record.date}</p>
+          <p><strong>Doctor:</strong> ${record.doctor}</p>
+          <p><strong>Details:</strong> ${record.details}</p>
+          <hr>
+        `).join('') : '<p>No medical records found.</p>'}
+      `;
+
+      document.getElementById('searchForm').reset();
+    }
+
+    function addMedicalRecord() {
+      document.getElementById('content').innerHTML = `
+        <h2>Add Medical Record</h2>
+        <form id="addRecordForm" onsubmit="addRecord(event)">
+          <input type="text" placeholder="ID Number" id="recordIdNumber" required>
+          <input type="text" placeholder="SHA256 Verification" id="recordVerificationHash" required>
+          <input type="text" placeholder="Date" id="recordDate" required>
+          <input type="text" placeholder="Doctor" id="recordDoctor" required>
+          <textarea placeholder="Details" id="recordDetails" required></textarea>
+          <input type="submit" value="Add Record">
+        </form>
+      `;
+    }
+
+    function addRecord(event) {
+      event.preventDefault();
+
+      const recordIdNumber = document.getElementById('recordIdNumber').value;
+      const recordVerificationHash = document.getElementById('recordVerificationHash').value;
+      const recordDate = document.getElementById('recordDate').value;
+      const recordDoctor = document.getElementById('recordDoctor').value;
+      const recordDetails = document.getElementById('recordDetails').value;
+
+      // Simulating blockchain retrieval
+      const patient = patients.find(p => p.idNumber === recordIdNumber);
+      if (!patient) {
+        alert('Patient not found!');
+        return;
+      }
+
+      // Simulating verification using SHA256 hash
+      const verified = verifyData(recordIdNumber, patient, recordVerificationHash);
+      if (!verified) {
+        alert('Verification failed!');
+        return;
+      }
+
+      const medicalRecord = {
+        date: recordDate,
+        doctor: recordDoctor,
+        details: recordDetails
+      };
+
+      patient.medicalRecords.push(medicalRecord);
+
+      // Simulating blockchain storage
+      console.log(JSON.stringify(patients));
+
+      document.getElementById('addRecordForm').reset();
+      alert('Medical record added successfully!');
+    }
+
+    function verifyData(idNumber, patient, verificationHash) {
+      // Simulating verification using a simple hash comparison
+      const data = `${idNumber}_${patient.name}_${patient.mobileNumber}`;
+      const hash = sha256(data); // Assuming `sha256` is a function that generates SHA256 hash
+      return verificationHash === hash;
+    }
+
+    // Simulating SHA256 hash function
+    function sha256(data) {
+        // Convert the data to a Uint8Array
+        const encoder = new TextEncoder();
+        const dataBytes = encoder.encode(data);
+      
+        // Hash the data using the SubtleCrypto API
+        return crypto.subtle.digest('SHA-256', dataBytes)
+          .then(buffer => {
+            // Convert the hash result to a hexadecimal string
+            const hashArray = Array.from(new Uint8Array(buffer));
+            const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+          });
+      }
+  </script>
+</body>
+</html>
